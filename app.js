@@ -29,13 +29,35 @@
   let isDragging = false;
   let intervalId = null;
   let tried_iou = 0.4;
-  
+  let shouldKeepOn = false;
+
   // 초기 설정
   progressCircle.setAttribute("stroke-dasharray", String(CIRCUMFERENCE));
   // 초기 offset은 update()에서 계산
   buildTimeMarkers();
   requestNotificationPermissionLikeOriginal();
   updateUI();
+
+  let wakeLock = null;
+
+  async function keepScreenOn() {
+    if (!('wakeLock' in navigator)) return false;
+    if (document.visibilityState !== 'visible') return false;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+      return true;
+    } catch {
+      wakeLock = null;
+      return false;
+    }
+  }
+
+  async function allowScreenOff() {
+    try { if (wakeLock) await wakeLock.release(); } catch {}
+    wakeLock = null;
+  }
+
 
   // ===== 이벤트 =====
   dial.addEventListener("pointerdown", (e) => {
@@ -63,6 +85,9 @@
   toggleBtn.addEventListener("click", () => {
     // 원본 TSX: toggleTimer는 그냥 isRunning만 토글 (remainingSeconds가 0이어도 그대로)
     isRunning = !isRunning;
+
+    if (isRunning) keepScreenOn().catch(() => {});
+    else allowScreenOff().catch(() => {});
     
     syncRunningEffects();
     updateUI();

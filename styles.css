@@ -148,7 +148,7 @@ button:not(:disabled) { cursor: pointer; }
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  animation: ani 0.5s step-end  infinite;
+  animation: ani 1.5s step-end  infinite;
 }
 [data-type="tried"] {
   /* animation-play-state: paused; */
@@ -159,7 +159,7 @@ button:not(:disabled) { cursor: pointer; }
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  animation: ani_tired step-end 0.5s infinite;
+  animation: ani_tired step-end 1.5s infinite;
 }
 
 @keyframes ani {
