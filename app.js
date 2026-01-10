@@ -100,6 +100,7 @@
     center_start.style.animationPlayState = "paused";
     center_start.setAttribute('data-type', 'happy');
     isRunning = false;
+    allowScreenOff().catch(() => {});
     totalSeconds = 0;
     remainingSeconds = 0;
     clearTimerInterval();
@@ -133,10 +134,15 @@
       intervalId = window.setInterval(() => {
         if (remainingSeconds <= 1) {
           isRunning = false;
+          allowScreenOff().catch(() => {});
+          playIcon.style.display = "none";
+          pauseIcon.style.display = "";
+
 
           // 완료 알림 (원본 TSX와 동일 조건)
           if ("Notification" in window && Notification.permission === "granted") {
             try {
+              alert("뽀모도로 타이머 완료!");
               new Notification("뽀모도로 타이머 완료!", { body: "시간이 다 되었습니다!" });
             } catch {}
           }
@@ -194,8 +200,14 @@
 
   function angleToSeconds(angle) {
     const progress = angle / (2 * Math.PI);
-    const seconds = Math.round(progress * MAX_SECONDS);
-    return Math.min(Math.max(seconds, 0), MAX_SECONDS);
+    const rawSeconds = progress * MAX_SECONDS;
+
+    const STEP = 60; // 1분 단위
+    const snapped = Math.round(rawSeconds / STEP) * STEP;
+
+    return Math.min(Math.max(snapped, 0), MAX_SECONDS);
+    // const seconds = Math.round(progress * MAX_SECONDS);
+    // return Math.min(Math.max(seconds, 0), MAX_SECONDS);
   }
 
   // ===== UI 계산(원본 TSX 그대로) =====
